@@ -9,3 +9,6 @@ app = Flask(__name__)
 def hello_world():
     return 'Hello from Flask!'
 
+@app.route('/wibble')
+def wibble():
+    return 'This will be where masteries are'
