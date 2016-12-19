@@ -15,7 +15,6 @@ app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
 db = SQLAlchemy(app)
 
 class ChampMastery(db.Model):
-
     __tablename__ = "masteries"
 
     champ = db.Column(db.String(700), primary_key=True)
