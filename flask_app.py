@@ -1,35 +1,38 @@
-from flask import Flask, redirect, render_template, request, url_for
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask import Flask, render_template, request, redirect
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-
-SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
-    username="jtliao",
-    password="dbpassword",
-    hostname="jtliao.mysql.pythonanywhere-services.com",
-    databasename="jtliao$masteries",
-)
-app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
-app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
-
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///champs.db'
 db = SQLAlchemy(app)
 
-class ChampMastery(db.Model):
-    __tablename__ = "masteries"
 
-    champ = db.Column(db.String(700), primary_key=True)
-    mastery = db.Column(db.String(700))
+class Champ(db.Model):
+    champ = db.Column(db.String(80), primary_key=True)
+    mastery = db.Column(db.String(80))
 
-@app.route('/', methods=["GET", "POST"])
-def index():
-    if request.method == "GET":
-        return render_template("main_page.html", comments=comments)
-    request.input["champion"]
-    return redirect(url_for('index'))
-    return render_template("main_page.html", masteries=db.query.all())
+    def __init__(self, champ, mastery):
+        self.champ = champ
+        self.mastery = mastery
 
-@app.route('/wibble')
-def wibble():
-    return 'This will be where masteries are'
+    def __repr__(self):
+        return "<" + self.champ + ": " + self.mastery + ">"
 
-#dbpassword
+current_mastery = " "
+
+@app.route('/')
+def home():
+    return render_template('home.html', mastery=current_mastery)
+
+
+@app.route("/signup", methods=['POST'])
+def submitted():
+    requested_champ = request.form['champ'].lower()
+    print(requested_champ)
+    champ = Champ.query.filter_by(champ=requested_champ).first()
+    print(champ.mastery)
+    global current_mastery
+    current_mastery = champ.mastery
+    return redirect('/')
+
+if __name__ == '__main__':
+    app.run(debug=True)
